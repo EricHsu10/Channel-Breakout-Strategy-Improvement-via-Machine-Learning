@@ -317,5 +317,7 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 #### 樣本數
 
 Train   ：label=1 :  501 label=0 :  513
+
 Test    ：label=1 :  259 label=0 :  176
+
 All          ：label=1 :  760 label=0 :  689

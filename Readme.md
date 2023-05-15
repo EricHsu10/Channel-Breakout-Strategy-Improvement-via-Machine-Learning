@@ -1,7 +1,4 @@
-
-
-
-# 實體K棒預測與當沖交易
+# Channel Breakout Strategy Improvement via Machine Learning
 ## 1. Motivation
 ### 當沖交易優勢：
 
@@ -26,7 +23,7 @@ K線由開盤價、收盤價、最高價、最低價四種價格組成
 Ｍulticharts 回測簡單的當沖策略
 * 標的：台積電期貨 5分K
 * 策略內容：價格突破＋實體Ｋ濾網 
-* 實體Ｋ濾網: 實體Ｋ佔比>0.5 且 實體Ｋ大小超過2塊 (只做大實體K的盤)(修改)
+* 實體Ｋ濾網: 實體Ｋ佔比>0.4 且 實體Ｋ大小超過1塊 (只做大實體K的盤)(修改)
 
 進場方式:
 * 向上突破五根K高點做多
@@ -48,7 +45,7 @@ K線由開盤價、收盤價、最高價、最低價四種價格組成
 ![](https://i.imgur.com/hcTg6cG.png)
 -->
 
-2. Data 
+## 2. Data 
 
  
  ### 標的:
@@ -66,15 +63,15 @@ TEJ：籌碼資料
 
 ### Response variable
 
-At time $t$, we calculate $y$ using the prices at day $t+1$.
-$$y=I_{\{physical > 0.4 ,\ high-low>1\}},$$ 
+We calculate $Y_t$ using $X_{t-1}$.
+$$Y_t=I_{\{physical > 0.4 ,\ high-low>1\}},$$ 
 
 where $$physical = abs(close-open)/(high-low).$$
 
 
 ### Explainatory variables (at day $t$)
 
-$S_{t,i}$ denote the stock price at the $i$-th observation at day $t$.
+$X_{t,i}$ at day $t$.
 
 | **價量指標**           | 描述                                   |
 | ------------------------ | --------------------------------------------- |
@@ -122,37 +119,44 @@ $S_{t,i}$ denote the stock price at the $i$-th observation at day $t$.
 | ratio_D&S_Pledge         | 董監質押％                                    |
 
 ### EDA:
-
-
-
 #### 1. Distribution Plot
 <!--實體K分布-->
 ![](https://i.imgur.com/Smo5LYL.png)
-
+##### 結果:訓練集和測試集的分配大抵相同，不會有樣本分布不均問題
 
 #### 2. Pair Plot
 <!--Y與X關係-->
 ##### 價量指標
 ![](https://i.imgur.com/uesQAhr.jpg)
-前一日是較有趨勢的盤，隔日傾向較沒有趨勢
+
 ##### 三大法人
 ![](https://i.imgur.com/nUgGCm9.jpg)
-
+###### 三大法人的解釋變數大多相關性小(點分布對稱)
 ##### 融資券
 ![](https://i.imgur.com/7Oo3YyV.jpg)
+###### 相較上者，融資劵的解釋變數相關性較大且為正相關
 ##### 董監持股
 ![](https://i.imgur.com/RI4wUIQ.png)
 
-
+###### 結果:
+###### 1.前一日是較有趨勢的盤，隔日傾向較沒有趨勢。
+###### 2.有些變數有正相關，但大部分非線性關係。
 
 #### 3. Heat map
 ![](https://i.imgur.com/RhGeFRC.png)
 
+###### 結果:
+###### 1.發現有些價量變數與信用交易類的變數有相關
+###### 2.變數間有高度相關，須注意有可能是因為變數是從配對的變數從公式衍生出來的
 
 ## 3. Formulation
-y: Trend 實體K
+Y: Trend 實體K
 X: 價量變數與籌碼變數
 目標:用X預測Y
+We calculate $Y_t$ using $X_{t-1}$.
+$$Y_t=I_{\{physical > 0.4 ,\ high-low>1\}},$$ 
+
+where $$physical = abs(close-open)/(high-low).$$
 
 Benchmark: Logistic Regression
 Method: DecisionTree, XGBoost
@@ -168,7 +172,7 @@ Method: DecisionTree, XGBoost
 | -------- | -------- |
 | 2017/01~2020/08 | 2020/09~2022/06     |
 
-Original method (static parameters:使用訓練集中的一組參數去預測第二天的$y$，且在測試期間具有相同的參數)
+Original method (static parameters:使用訓練集中的一組參數去預測第二天(隔天)的$y$，且在測試期間具有相同的參數)
 
 
 | 績效 |Logistic|DecisionTree|XGBoost|
@@ -181,26 +185,25 @@ Precision | 0.6| 0.79 | <font color="#f00">**0.85**</font> |  |
 Note:模型中參數已經過GridSearchCV最佳化
 #### 4.1.B: Confusion matrix with dynamic-adjusted models
 ![](https://i.imgur.com/SFkhF83.png)
-#### 我們想要使用動態才能在靜態的模型中再更進一步，理由是靜態切割的方式可能沒有辦法考慮到市場的趨勢(ex.2020年全球遇上新冠肺炎，疫情衝擊經濟)，所以我們使用動態切割train和test的集合。
+#### 我們想要從靜態的模型中再更進步我們的參數，理由是靜態切割的方式可能沒有辦法考慮到市場的趨勢(ex.2020年全球遇上新冠肺炎，疫情衝擊經濟)，所以我們使用動態的時間序列推進訓練集。
 |data period| window |shift|
 |---|----|---|
 |2017/01~2022/06|250 days|30 days|
 
-testing
-Sliding window train test split prediciton (Use 250-day historical to obtain a model and parameters to predict $y$ one-days ahead,finally we re-estimate the model and predict with the new parameters)
 
+Sliding window train test split prediciton (Use 250-day historical to obtain a model and parameters to predict $y$ one-days ahead,finally we re-estimate the model and predict with the new parameters) 
 
 
 | 績效 |Logistic|DecisionTree|XGBoost|
 | ------ |:------ | --- | --- | 
-| Accuracy  | 0.5 | 0.57 | <font color="#f00">**0.6**</font> |  |   
-| F1 Score  | 0.59| 0.68 | <font color="#f00">**0.73**</font> | |    
-| Recall    | 0.58| 0.61 | <font color="#f00">**0.61**</font>  |  |    
-| Precision | 0.6 | 0.78 | <font color="#f00">**0.9**</font> | |   
+| Accuracy  | 0.5 | 0.57 $\uparrow$ | <font color="#f00">**0.6 $\uparrow$**</font> |  |   
+| F1 Score  | 0.59| 0.68 $\uparrow$ | <font color="#f00">**0.73 $\uparrow$**</font> | |    
+| Recall    | 0.58| 0.61 $\uparrow$ | <font color="#f00">**0.61**</font>  |  |    
+| Precision | 0.6 | 0.78 | <font color="#f00">**0.9 $\uparrow$$\uparrow$**</font> | |   
 
 ### 4.2 人類視角實體Ｋ濾網績效 (Dynamic-adjusted models)
 
-#####   Logistic Regression 樣本外績效2020/09~2022/06
+#####   Logistic Regression:testing set績效2020/09~2022/06
 多單權益曲線:
 ![](https://i.imgur.com/0C7TpIm.png)
 空單權益曲線:
@@ -208,7 +211,7 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 <!--只做多單的績效:
 ![](https://i.imgur.com/kkfGN8I.png)-->
 
-#####   DecisionTree 樣本外績效2020/09~2022/06
+#####   DecisionTree :testing set績效2020/09~2022/06
 多單權益曲線:
 ![](https://i.imgur.com/oNtiM7T.png)
 空單權益曲線:
@@ -216,7 +219,7 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 <!--只做多單的績效:
 ![](https://i.imgur.com/pqgzwwf.png)-->
 
-#####   XGBOOST 樣本外績效2020/09~2022/06
+#####   XGBOOST :testing set績效2020/09~2022/06
 多單權益曲線:
 ![](https://i.imgur.com/j5s2OaA.png)
 空單權益曲線:
@@ -225,7 +228,7 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 ![](https://i.imgur.com/pYCPymZ.png)-->
 
 
-結論: 由上圖可看出，多單的價格突破搭配實體K濾網效果不錯，空單則效果不好。股市長期多頭，因此空單突破可能需要更多濾網或更複雜策略才能穩定獲利
+##### 結論: 由上圖可看出，多單的價格突破搭配實體K濾網效果不錯，空單則效果不好。股市長期多頭，因此空單突破可能需要更多濾網或更複雜策略才能穩定獲利
 
 ### 策略優化
 ```
@@ -252,16 +255,15 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 ## 5. Conclusion
 
 1. XGBOOST 比較好
-1. Dynamic-adjusted models 比較好
+1. Dynamic-adjusted models 比較讚
 1. 實體K濾網在多單的簡單突破策略(突破近N根高點做多)較有效果
 1. 股市長期多頭，因此空單突破可能需要更多濾網或更複雜策略才能穩定獲利
 
 
 
 
-## Reference
 
-## Supplimentary materials
+
 
 
 
@@ -285,10 +287,8 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 ![](https://i.imgur.com/pREuNt9.png)
 ![](https://i.imgur.com/S6EcYPz.png)
 
-### 樣本數
+#### 樣本數
 
 Train   ：label=1 :  501 label=0 :  513
-
 Test    ：label=1 :  259 label=0 :  176
-
 All          ：label=1 :  760 label=0 :  689

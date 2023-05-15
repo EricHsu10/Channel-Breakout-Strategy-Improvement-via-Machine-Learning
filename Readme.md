@@ -6,7 +6,8 @@
 然而，當沖交易也有其限制，因為持倉時間有限，如何有效率的選擇進場時機將左右我們的當沖交易績效，因此在有限的時間內建立交易的優勢很重要。
 除了找出當日會有波動的標的之外，若是能**預測波動方向較一致的盤勢**，找出比較不會上下沖洗的盤勢，或許能夠讓我們在日內的波段行情中找到好的交易機會。
 
-![](https://i.imgur.com/xbj8Qjl.jpg)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/82b29bd4-0b0d-4396-95ca-d3296ec0c670)
+
 
 ### 實體K介紹:
 
@@ -14,7 +15,8 @@ K線由開盤價、收盤價、最高價、最低價四種價格組成
 實體Ｋ即是**Ｋ線的實心部分**，不包含上影線與下影線
 實體K佔比＝開盤價和收盤價距離/最高價與最低價的距離
 
-![](https://i.imgur.com/LXGMW9R.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/e3c6350b-d72a-4ea8-a6ad-9ee8dfafe616)
+
 我們認為實體Ｋ佔比較大的盤勢，波動的方向會較一致，且不會有較大的日內反轉，適合當沖的突破策略; 相對的，上下影線部分較大的盤勢可能容易被盤勢玩弄。
 
 
@@ -35,27 +37,30 @@ K線由開盤價、收盤價、最高價、最低價四種價格組成
 
 
 實體K濾網績效:上帝視角（預先知道今天實體Ｋ比例，if>0.5才使用突破策略買進）
-![](https://i.imgur.com/OuwmdqQ.png)
-買進持有績效
-![](https://i.imgur.com/sHJKxXd.png)
-無濾網績效：只用使用突破策略
-![](https://i.imgur.com/yFtRzqN.png)
 
-<!--2317
-![](https://i.imgur.com/hcTg6cG.png)
--->
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/9868a1f0-c268-4502-b0ab-40e01155d357)
+
+
+買進持有績效
+
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/ca50023e-83ba-4a40-98d9-1b678a8fec7c)
+
+
+無濾網績效：只用使用突破策略
+
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/af78b1b0-2fc6-4c55-a8da-0a08f9570e00)
 
 ## 2. Data 
 
  
  ### 標的:
-台積電 2330 <!--(鴻海 2317, 聯發科 2454)-->
+台積電 2330 
 ### 資料來源:
 Tickdata: 價量資料
 TEJ：籌碼資料
 ### 樣本期間:  
 2017/01~2022/06
-<!-- 2016-06-02~2022-06-20  -->
+
 | training data (7) | testing data (3) |
 | -------- | -------- |
 | 2017/01~2020/08 | 2020/09~2022/06     |
@@ -121,29 +126,37 @@ $X_{t,i}$ at day $t$.
 ### EDA:
 #### 1. Distribution Plot
 <!--實體K分布-->
-![](https://i.imgur.com/Smo5LYL.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/4e781fef-947c-4bdd-9eb7-6991e5aac647)
+
 ##### 結果:訓練集和測試集的分配大抵相同，不會有樣本分布不均問題
 
 #### 2. Pair Plot
 <!--Y與X關係-->
 ##### 價量指標
-![](https://i.imgur.com/uesQAhr.jpg)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/9d4936a1-9be9-48cf-9ce3-3ff1bd0680ce)
+
 
 ##### 三大法人
-![](https://i.imgur.com/nUgGCm9.jpg)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/90df4207-8938-42ea-8f9d-df4936a63f72)
+
+
 ###### 三大法人的解釋變數大多相關性小(點分布對稱)
 ##### 融資券
-![](https://i.imgur.com/7Oo3YyV.jpg)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/3a00e183-090b-446d-a4f4-350328e46220)
+
+
 ###### 相較上者，融資劵的解釋變數相關性較大且為正相關
 ##### 董監持股
-![](https://i.imgur.com/RI4wUIQ.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/2b27632c-6930-404d-82cb-2f6b5bc3836b)
+
 
 ###### 結果:
 ###### 1.前一日是較有趨勢的盤，隔日傾向較沒有趨勢。
 ###### 2.有些變數有正相關，但大部分非線性關係。
 
 #### 3. Heat map
-![](https://i.imgur.com/RhGeFRC.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/8396af43-910b-45ea-9b66-7b55bc86e27e)
+
 
 ###### 結果:
 ###### 1.發現有些價量變數與信用交易類的變數有相關
@@ -184,7 +197,8 @@ Precision | 0.6| 0.79 | <font color="#f00">**0.85**</font> |  |
 
 Note:模型中參數已經過GridSearchCV最佳化
 #### 4.1.B: Confusion matrix with dynamic-adjusted models
-![](https://i.imgur.com/SFkhF83.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/563631aa-3ee2-43f3-91b0-65004c9c1f30)
+
 #### 我們想要從靜態的模型中再更進步我們的參數，理由是靜態切割的方式可能沒有辦法考慮到市場的趨勢(ex.2020年全球遇上新冠肺炎，疫情衝擊經濟)，所以我們使用動態的時間序列推進訓練集。
 |data period| window |shift|
 |---|----|---|
@@ -205,25 +219,31 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 
 #####   Logistic Regression:testing set績效2020/09~2022/06
 多單權益曲線:
-![](https://i.imgur.com/0C7TpIm.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/939cb8b6-6efe-46c5-95ab-d469228f630f)
+
 空單權益曲線:
-![](https://i.imgur.com/lGXmfp7.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/7310ec1b-93da-43fa-8833-5a52563bd795)
+
 <!--只做多單的績效:
 ![](https://i.imgur.com/kkfGN8I.png)-->
 
 #####   DecisionTree :testing set績效2020/09~2022/06
 多單權益曲線:
-![](https://i.imgur.com/oNtiM7T.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/0c9afaf1-75c1-4df2-ba74-5dfe817d7325)
+
 空單權益曲線:
-![](https://i.imgur.com/1rzqECo.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/c0c252bd-3cf8-435a-956a-515d5046cc00)
+
 <!--只做多單的績效:
 ![](https://i.imgur.com/pqgzwwf.png)-->
 
 #####   XGBOOST :testing set績效2020/09~2022/06
 多單權益曲線:
-![](https://i.imgur.com/j5s2OaA.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/26444058-9ddc-4c97-bc67-3a52757a07c9)
+
 空單權益曲線:
-![](https://i.imgur.com/YovKnEj.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/7ecbe657-eaed-4e67-bc9f-3e5ecc9b8bcd)
+
 <!--只做多單的績效:
 ![](https://i.imgur.com/pYCPymZ.png)-->
 
@@ -271,21 +291,28 @@ Sliding window train test split prediciton (Use 250-day historical to obtain a m
 ### Appendix 
 
 #### Confusion matrix with static models: 我們使用不同模型形成的Confusion matrix鑑別靜態模型的好壞
-![](https://i.imgur.com/tm9dixZ.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/2bba4cbb-f140-45b0-9739-cb951d73fdb3)
+
 ###### Accuracy:模型預測正確數量所佔整體的比例
 ###### Precision:陽性的樣本中有幾個是預測正確
 ###### Recall:事實為真的樣本中有幾個是預測正確
-![](https://i.imgur.com/THoBuCB.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/cd2ea7db-3dd8-43c3-b775-59fbef040a9e)
+
 ###### F1-score:同時考慮Precision & Recall，平衡地反映這個演算法的精確度
 
-![](https://i.imgur.com/Ye9Iebc.png)
-![](https://i.imgur.com/IwCeDxI.png)
-![](https://i.imgur.com/4lx2hIO.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/a870027e-10c7-4145-b104-7d09e803491b)
+
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/d354bf94-b783-4909-96c2-2bc60364487e)
+
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/17ffd494-186b-41ec-8234-c35f2f8178aa)
+
 <!--![](https://i.imgur.com/QzBZVeV.png) -->
 
 ### Confusion matrix with dynamic-adjusted models:鑑別動態模型的好壞
-![](https://i.imgur.com/pREuNt9.png)
-![](https://i.imgur.com/S6EcYPz.png)
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/b9103d74-3aea-4e4b-bd44-d34f2e0088f0)
+
+![image](https://github.com/EricHsu10/Channel-Breakout-Strategy-Improvement-via-Machine-Learning/assets/111495932/558bf73f-2c25-4170-a904-ddfbfd0e9d73)
+
 
 #### 樣本數
 
